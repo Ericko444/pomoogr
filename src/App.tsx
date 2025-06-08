@@ -27,8 +27,6 @@ function App(): JSX.Element {
       <Header />
       <div className="flex-grow py-4 flex flex-col"> {/* Ensure content area can grow and also use flex-col */}
         <PomodoroContainer />
-        <ProgressBar progressPercent={initialProgress} />
-        <AsciiArtDisplay art={initialAsciiArt} />
       </div>
       <StatusBar />
     </TerminalLayout>
