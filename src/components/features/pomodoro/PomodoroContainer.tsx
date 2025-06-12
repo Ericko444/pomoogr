@@ -6,6 +6,11 @@ import ProgressBar from '@/components/ui/ProgressBar';
 import AsciiArtDisplay from '@/components/ui/AsciiArtDisplay';
 import type { PomodoroSettings, SessionType } from '@/types/pomodoro';
 
+interface PomodoroContainerProps {
+    initialSettings: PomodoroSettings;
+    onStatusUpdate: (message: string) => void;
+}
+
 const DEFAULT_SETTINGS: PomodoroSettings = {
     workTime: 25,
     shortBreak: 5,
@@ -38,20 +43,27 @@ const POMODORO_ART_VARIATIONS: string[] = [
 let currentArtIndex = 0;
 
 
-const PomodoroContainer: React.FC = () => {
+const PomodoroContainer: React.FC<PomodoroContainerProps> = ({ initialSettings, onStatusUpdate }) => {
     const [settings, setSettings] = useState<PomodoroSettings>(() => {
         const savedSettings = localStorage.getItem('pomodoroSettings');
         return savedSettings ? JSON.parse(savedSettings) : DEFAULT_SETTINGS;
     });
 
+    useEffect(() => {
+        setSettings(initialSettings);
+    }, [initialSettings]);
+
     const [timeLeft, setTimeLeft] = useState<number>(settings.workTime * 60);
     const [isRunning, setIsRunning] = useState<boolean>(false);
     const [currentSession, setCurrentSession] = useState<SessionType>('work');
     const [sessionCount, setSessionCount] = useState<number>(0); // Work sessions in current cycle
-    const [statusMessage, setStatusMessage] = useState<string>('READY FOR WORK SESSION');
     const [currentPomodoroArt, setCurrentPomodoroArt] = useState<string>(POMODORO_ART_VARIATIONS[0]);
 
     const intervalRef = useRef<number | null>(null);
+    useEffect(() => {
+        onStatusUpdate('READY FOR WORK SESSION');
+    }, [onStatusUpdate]);
+
 
     const getTimeForSession = useCallback((session: SessionType): number => {
         switch (session) {
@@ -71,7 +83,7 @@ const PomodoroContainer: React.FC = () => {
         setIsRunning(false);
         setCurrentSession(session);
         setTimeLeft(getTimeForSession(session));
-        setStatusMessage(message);
+        onStatusUpdate(message);
     }, [getTimeForSession]);
 
 
@@ -94,21 +106,21 @@ const PomodoroContainer: React.FC = () => {
                 nextSessionType = 'shortBreak';
                 completionMessage = "SHORT BREAK INITIALIZED";
             }
-            setStatusMessage("WORK SESSION COMPLETED! TIME FOR A BREAK.");
+            onStatusUpdate("WORK SESSION COMPLETED! TIME FOR A BREAK.");
         } else { // Break finished
             nextSessionType = 'work';
             completionMessage = "READY FOR WORK SESSION";
             if (currentSession === 'shortBreak') {
-                setStatusMessage("SHORT BREAK OVER! BACK TO WORK.");
+                onStatusUpdate("SHORT BREAK OVER! BACK TO WORK.");
             } else {
-                setStatusMessage("LONG BREAK OVER! READY FOR MORE WORK.");
+                onStatusUpdate("LONG BREAK OVER! READY FOR MORE WORK.");
             }
             // Change ASCII art
             currentArtIndex = (currentArtIndex + 1) % POMODORO_ART_VARIATIONS.length;
             setCurrentPomodoroArt(POMODORO_ART_VARIATIONS[currentArtIndex]);
         }
         resetTimerInternal(nextSessionType, completionMessage);
-    }, [currentSession, sessionCount, settings.sessionsBeforeLongBreak, resetTimerInternal]);
+    }, [currentSession, sessionCount, settings.sessionsBeforeLongBreak, resetTimerInternal, onStatusUpdate]);
 
 
     useEffect(() => {
@@ -126,8 +138,13 @@ const PomodoroContainer: React.FC = () => {
 
     // Effect to reset timer when settings change for the current session type
     useEffect(() => {
-        setTimeLeft(getTimeForSession(currentSession));
-    }, [settings.workTime, settings.shortBreak, settings.longBreak, currentSession, getTimeForSession]);
+        const newTimeForCurrentSession = getTimeForSession(currentSession);
+        if (timeLeft > newTimeForCurrentSession && !isRunning) {
+            setTimeLeft(newTimeForCurrentSession);
+        } else if (!isRunning) {
+            setTimeLeft(newTimeForCurrentSession);
+        }
+    }, [settings.workTime, settings.shortBreak, settings.longBreak, settings.sessionsBeforeLongBreak, getTimeForSession, currentSession, isRunning, /*resetTimerInternal*/]);
 
 
     const handleStart = () => {
@@ -136,7 +153,7 @@ const PomodoroContainer: React.FC = () => {
                 setTimeLeft(getTimeForSession(currentSession));
             }
             setIsRunning(true);
-            setStatusMessage("TIMER RUNNING...");
+            onStatusUpdate("TIMER RUNNING...");
         }
     };
 
@@ -144,7 +161,7 @@ const PomodoroContainer: React.FC = () => {
         if (isRunning) {
             setIsRunning(false);
             if (intervalRef.current) clearInterval(intervalRef.current);
-            setStatusMessage("TIMER PAUSED");
+            onStatusUpdate("TIMER PAUSED");
         }
     };
 

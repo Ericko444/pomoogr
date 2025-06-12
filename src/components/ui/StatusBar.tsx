@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 
-const StatusBar: React.FC = () => {
+interface StatusBarProps {
+    statusMessage: string;
+}
+
+const StatusBar: React.FC<StatusBarProps> = ({ statusMessage }) => {
     const [currentDate, setCurrentDate] = useState<string>('');
     const [currentTime, setCurrentTime] = useState<string>('');
-    const [appStatus, setAppStatus] = useState<string>("SYSTEM OPERATIONAL");
 
     useEffect(() => {
         const updateClock = () => {
@@ -22,15 +25,17 @@ const StatusBar: React.FC = () => {
                 })
             );
         };
-        updateClock();
+
+        updateClock(); // Initial call
         const clockInterval = setInterval(updateClock, 1000 * 30);
+
         return () => clearInterval(clockInterval);
     }, []);
 
     return (
         <div className="mt-auto pt-2 border-t border-green-800 flex flex-col text-center space-y-1 sm:flex-row sm:text-left sm:justify-between sm:space-y-0 items-center text-xs">
             <div>READY</div>
-            <div>{appStatus}</div>
+            <div>{statusMessage}</div>
             <div>
                 <span>{currentDate}</span> <span>{currentTime}</span>
             </div>
