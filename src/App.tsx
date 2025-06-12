@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, type JSX } from 'react';
+import { useState, useEffect, useCallback, type JSX } from 'react';
 import TerminalLayout from '@/components/layout/TerminalLayout';
 import Header from '@/components/ui/Header';
 import StatusBar from '@/components/ui/StatusBar'; // Assuming StatusBar still gets its own status or a prop
