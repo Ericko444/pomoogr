@@ -13,20 +13,20 @@ const TimerControls: React.FC<TimerControlsProps> = ({ onStart, onPause, onReset
             <button
                 onClick={onStart}
                 disabled={isRunning}
-                className="w-full sm:w-auto bg-green-800 hover:bg-green-700 text-black px-4 py-2 rounded border-green-500 border-2 disabled:opacity-50"
+                className="w-full sm:w-auto bg-green-800 hover:bg-green-700 text-black px-4 py-2 rounded border-green-500 border-2 disabled:opacity-50 cursor-pointer"
             >
                 {`>`}START
             </button>
             <button
                 onClick={onPause}
                 disabled={!isRunning}
-                className="w-full sm:w-auto bg-yellow-800 hover:bg-yellow-700 text-black px-4 py-2 rounded border-yellow-500 border-2 disabled:opacity-50"
+                className="w-full sm:w-auto bg-yellow-800 hover:bg-yellow-700 text-black px-4 py-2 rounded border-yellow-500 border-2 disabled:opacity-50 cursor-pointer"
             >
                 ||PAUSE
             </button>
             <button
                 onClick={onReset}
-                className="w-full sm:w-auto bg-red-800 hover:bg-red-700 text-black px-5 py-2 rounded border-red-500 border-2"
+                className="w-full sm:w-auto bg-red-800 hover:bg-red-700 text-black px-5 py-2 rounded border-red-500 border-2 cursor-pointer"
             >
                 []RESET
             </button>
