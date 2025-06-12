@@ -1,14 +1,38 @@
-const StatusBar = () => {
-    const currentDate = "Jun 7, 25";
-    const currentTime = "12:05 PM";
-    const statusMessage = "SYSTEM INITIALIZED...";
+import React, { useState, useEffect } from 'react';
+
+const StatusBar: React.FC = () => {
+    const [currentDate, setCurrentDate] = useState<string>('');
+    const [currentTime, setCurrentTime] = useState<string>('');
+    const [appStatus, setAppStatus] = useState<string>("SYSTEM OPERATIONAL");
+
+    useEffect(() => {
+        const updateClock = () => {
+            const now = new Date();
+            setCurrentDate(
+                now.toLocaleDateString('en-US', {
+                    year: '2-digit',
+                    month: 'short',
+                    day: 'numeric',
+                })
+            );
+            setCurrentTime(
+                now.toLocaleTimeString('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                })
+            );
+        };
+        updateClock();
+        const clockInterval = setInterval(updateClock, 1000 * 30);
+        return () => clearInterval(clockInterval);
+    }, []);
 
     return (
         <div className="mt-auto pt-2 border-t border-green-800 flex flex-col text-center space-y-1 sm:flex-row sm:text-left sm:justify-between sm:space-y-0 items-center text-xs">
             <div>READY</div>
-            <div id="status-message">{statusMessage}</div>
+            <div>{appStatus}</div>
             <div>
-                <span id="current-date">{currentDate}</span> <span id="current-time">{currentTime}</span>
+                <span>{currentDate}</span> <span>{currentTime}</span>
             </div>
         </div>
     );
